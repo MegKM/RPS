@@ -1,9 +1,9 @@
 /*----- constants -----*/
 const AUDIO = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-simple-countdown-922.mp3');
 const RPS_LOOKUP = {
-    r: 'imgs/rock.png',
-    p: 'imgs/paper.png',
-    s: 'imgs/scissors.png'
+    p: {img: 'imgs/paper.png', beats: 'r'},
+    s: {img: 'imgs/scissors.png', beats: 'p'},
+    r: {img: 'imgs/rock.png', beats: 's'},
 };
 
 /*----- app's state (variables) -----*/
@@ -14,6 +14,7 @@ let winner;
 /*----- cached element references -----*/
 const pResultsElement = document.getElementById('p-result');
 const cResultsElement = document.getElementById('c-result');
+const countdownElement = document.getElementById('countdown');
 
 /*----- event listeners -----*/
 document.querySelector('main').addEventListener('click', handleChoice);
@@ -46,11 +47,14 @@ function handleChoice(event) {
     //computer's choice
     results.c = getRandomRPS();
     winner = getWinner();
+    scores[winner]++;
     render();
 }
 
 function getWinner(){
-    
+    if (results.p === results.c) return 't';
+    return RPS_LOOKUP[results.p].beats === results.c ? 'p' : 'c';
+
 }
 
 function getRandomRPS(){
@@ -61,8 +65,28 @@ function getRandomRPS(){
 
 // Transfers data to the DOM.
 function render(){
-    renderScores()
-    renderResults()
+    renderCountdown(function(){
+        renderScores()
+        renderResults()
+    })
+}
+
+function renderCountdown(callback){
+    let count = 3;
+    AUDIO.currentTime = 0;
+    AUDIO.play();
+    countdownElement.style.visibility = 'visible';
+    countdownElement.innerText = count;
+    const timerId = setInterval(function(){
+        count--;
+        if (count){
+            countdownElement.innerText = count;
+        } else {
+            clearInterval(timerId);
+            countdownElement.style.visibility = 'hidden';
+            callback();
+        }
+    }, 1000);
 }
 
 function renderScores(){
@@ -73,7 +97,9 @@ function renderScores(){
 }
 
 function renderResults(){
-    pResultsElement.src = RPS_LOOKUP[results.p];
-    cResultsElement.src = RPS_LOOKUP[results.c];
+    pResultsElement.src = RPS_LOOKUP[results.p].img;
+    cResultsElement.src = RPS_LOOKUP[results.c].img;
+    pResultsElement.style.borderColor = winner === 'p' ? 'grey' : 'white';
+    cResultsElement.style.borderColor = winner === 'c' ? 'grey' : 'white';
 }
 
