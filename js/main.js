@@ -16,6 +16,7 @@ const pResultsElement = document.getElementById('p-result');
 const cResultsElement = document.getElementById('c-result');
 
 /*----- event listeners -----*/
+document.querySelector('main').addEventListener('click', handleChoice);
 
 /*----- functions -----*/
 init();
@@ -37,6 +38,33 @@ function init(){
     render();
 }
 
+function handleChoice(event) {
+    //Guard
+    if (event.target.tagName !== 'BUTTON') return;
+    //player's choice
+    results.p = event.target.innerText.toLowerCase();
+    //computer's choice
+    results.c = getRandomRPS();
+    winner = getWinner();
+    render();
+}
+
+function getWinner(){
+    
+}
+
+function getRandomRPS(){
+    const rps = Object.keys(RPS_LOOKUP);
+    const randomIndex = Math.floor(Math.random() * rps.length);
+    return rps[randomIndex];
+}
+
+// Transfers data to the DOM.
+function render(){
+    renderScores()
+    renderResults()
+}
+
 function renderScores(){
     for(let key in scores){
         const scoreElement = document.getElementById(`${key}-score`);
@@ -47,10 +75,5 @@ function renderScores(){
 function renderResults(){
     pResultsElement.src = RPS_LOOKUP[results.p];
     cResultsElement.src = RPS_LOOKUP[results.c];
-}
-
-function render(){
-    renderScores()
-    renderResults()
 }
 
